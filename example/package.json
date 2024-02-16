@@ -1,0 +1,6 @@
+{
+  "type": "module",
+  "devDependencies": {
+    "ws": "8.16.0"
+  }
+}
