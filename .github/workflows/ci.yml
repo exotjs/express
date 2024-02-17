@@ -1,0 +1,21 @@
+name: ci
+on:
+  push:
+    branches: [main, next]
+  pull_request:
+    branches: ['*']
+
+jobs:
+  node:
+    name: 'Node.js v${{ matrix.node }}'
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['16.x', '18.x', '20.x']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+      - run: npm install --frozen-lockfile
+      - run: npm run test

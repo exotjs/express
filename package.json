@@ -1,6 +1,6 @@
 {
   "name": "@exotjs/express",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "An Express middleware for Exot Inspector.",
   "author": "Daniel Regeci",
   "license": "MIT",
@@ -18,7 +18,8 @@
     "build": "rimraf dist && tsc -p tsconfig.build.json",
     "eslint": "eslint ./lib/**/*",
     "format": "prettier --write './(lib|tests)/**/*'",
-    "test": "vitest"
+    "test": "vitest run",
+    "prepare": "husky"
   },
   "files": [
     "dist"
@@ -55,7 +56,7 @@
     }
   },
   "peerDependencies": {
-    "@exotjs/inspector": "0.x",
+    "@exotjs/inspector": "^0.1.12",
     "ws": "8.x"
   },
   "devDependencies": {
@@ -65,6 +66,7 @@
     "@typescript-eslint/eslint-plugin": "^7.0.1",
     "eslint": "^8.56.0",
     "express": "^4.18.2",
+    "husky": "^9.0.11",
     "prettier": "^3.2.5",
     "rimraf": "^5.0.5",
     "ts-node": "^10.9.1",

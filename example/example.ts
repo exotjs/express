@@ -1,6 +1,5 @@
 import { createServer } from 'node:http';
 import express from 'express';
-import { WebSocketServer } from 'ws';
 import { errorHandler, middleware, websocketServer } from '../lib/index.js';
 import { Inspector } from '@exotjs/inspector';
 import { MemoryStore } from '@exotjs/inspector/store';
@@ -10,10 +9,6 @@ const inspector = new Inspector({
   store: new MemoryStore(),
 });
 
-inspector.activate();
-
-const { trace } = inspector.instruments.traces;
-
 const app = express();
 const server = createServer(app);
 
@@ -22,15 +17,7 @@ app.use(middleware({
 }));
 
 app.get('/', (req, res) => {
-  trace('router', (ctx) => {
-    ctx.addAttribute('method', req.method);
-    ctx.addAttribute('path', req.url || '/');
-    setTimeout(() => {
-      trace('response', () => {
-        res.send('ok');
-      });
-    }, 150);
-  });
+  res.send('Hello.');
 });
 
 app.get('/error', (req, res) => {
@@ -40,7 +27,6 @@ app.get('/error', (req, res) => {
 app.use(errorHandler({
   inspector,
 }));
-
 
 server.listen(3002, () => {
   console.log('Server listening on port ' + (server.address() as AddressInfo)?.port);

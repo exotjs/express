@@ -1,7 +1,11 @@
 import { WebSocketServer } from 'ws';
+import { Inspector } from '@exotjs/inspector';
 export function errorHandler(options) {
     const { inspector } = options;
-    return function exotErrorHandler(err, req, res, next) {
+    if (!(inspector instanceof Inspector)) {
+        throw new Error(`Invalid inspector instance.`);
+    }
+    return function exotErrorHandler(err, req, _res, next) {
         inspector.instruments.errors.push({
             attributes: {
                 method: req.method,
@@ -16,15 +20,18 @@ export function errorHandler(options) {
 }
 export function middleware(options) {
     const { inspector, traceIdHeader = 'X-Trace-Id' } = options;
+    if (!(inspector instanceof Inspector)) {
+        throw new Error(`Invalid inspector instance.`);
+    }
     const { addAttribute, trace } = inspector.instruments.traces;
     return function exotMiddleware(req, res, next) {
         trace('request', async (ctx) => {
             return new Promise((resolve) => {
-                if (traceIdHeader && ctx.rootSpan?.uuid) {
+                if (traceIdHeader && ctx.rootSpan.uuid) {
                     res.header(traceIdHeader, ctx.rootSpan.uuid);
                 }
-                ctx.addAttribute('method', req.method);
-                ctx.addAttribute('path', req.path);
+                addAttribute(ctx.rootSpan, 'method', req.method);
+                addAttribute(ctx.rootSpan, 'path', req.path);
                 res.once('finish', () => {
                     addAttribute(ctx.rootSpan, 'status', res.statusCode);
                     resolve(void 0);
@@ -52,9 +59,12 @@ export function middleware(options) {
 }
 export function websocketServer(options) {
     const { authorize, inspector, path = '/', server, ws = {} } = options;
+    if (!(inspector instanceof Inspector)) {
+        throw new Error(`Invalid inspector instance.`);
+    }
     const wss = new WebSocketServer({
-        ...ws,
         perMessageDeflate: false,
+        ...ws,
     });
     const checkPath = (req) => {
         const requestPath = String(req.url || '/').split('?')[0];
@@ -66,7 +76,7 @@ export function websocketServer(options) {
     };
     wss.on('connection', async (ws, req) => {
         if (!server) {
-            if (checkPath(req)) {
+            if (!checkPath(req)) {
                 return req.socket.destroy();
             }
             if (authorize) {
@@ -114,7 +124,7 @@ export function websocketServer(options) {
         wss.once('error', reject);
         wss.once('listening', () => {
             wss.off('error', reject);
-            resolve(wss.address());
+            resolve(wss);
         });
     });
 }
