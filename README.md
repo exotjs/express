@@ -59,21 +59,16 @@ websocketServer({
 
 ## Tracing
 
-Use the [trace](https://github.com/exotjs/trace) package for easy application tracing. It works automatically even for nested traces, without passing around any context.
+Use the `trace` function exported by the traces instrument. It works automatically even for nested traces, without passing around any context.
 
 ```ts
-import { Tracer } from '@exotjs/trace';
-
-const tracer = new Tracer();
-const { trace } = tracer;
+const { trace } = inspector.instruments.trace;
 
 // Now simply use `trace()` anywhere in your code
 trace('mytrace', () => {
   // some work...
 })
 ```
-
-Alternatively, use the `inspect.instruments.traces.trace()` function.
 
 ## Contributing
 
